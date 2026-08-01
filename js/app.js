@@ -154,9 +154,29 @@ function setupSidebar() {
   setupSidebar();
   try { await loadAll(); }
   catch (e) {
+    if (String(e.message || e).includes('NO_GITHUB_TOKEN')) {
+      renderOnboarding();
+      return;
+    }
     toast('初始化失败：' + (e.message || e));
     console.error(e);
     return;
   }
   render('dashboard');
 })();
+
+function renderOnboarding() {
+  const view = document.getElementById('view');
+  clear(view);
+  view.appendChild(el('div', { class: 'card' },
+    el('h3', {}, '👋 欢迎使用 mimi 的成长日志'),
+    el('div', { class: 'muted' }, '数据将保存在你自己的 GitHub 私有仓库，跨设备实时同步。'),
+    el('div', { style: { margin: '12px 0', lineHeight: '1.7' } },
+      el('div', {}, '① 打开右上角 ⚙ 设置'),
+      el('div', {}, '② 数据后端选「GitHub 云端」'),
+      el('div', {}, '③ 粘贴一个仅限 mimi-workstation-data 仓库的 Token'),
+      el('div', {}, '④ 点保存，即可开始使用'),
+    ),
+    el('button', { class: 'btn primary', on: { click: () => document.getElementById('settingsBtn').click() } }, '⚙ 去设置'),
+  ));
+}
