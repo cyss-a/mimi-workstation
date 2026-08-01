@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "title": "RAZ 句子跟读",
+  "level": "5a",
+  "sentences": [
+    { "id": "s01", "en": "The dog is running fast.", "zh": "小狗跑得很快。" },
+    { "id": "s02", "en": "I can see a big tree.", "zh": "我能看见一棵大树。" },
+    { "id": "s03", "en": "There are three cats.", "zh": "那里有三只猫。" },
+    { "id": "s04", "en": "My mom is very kind.", "zh": "我妈妈非常和善。" },
+    { "id": "s05", "en": "She has a red ball.", "zh": "她有一个红色的球。" },
+    { "id": "s06", "en": "The sun is very bright today.", "zh": "今天太阳很明亮。" },
+    { "id": "s07", "en": "We eat dinner at six.", "zh": "我们六点吃晚饭。" },
+    { "id": "s08", "en": "The baby is sleeping now.", "zh": "宝宝现在在睡觉。" },
+    { "id": "s09", "en": "I like green apples.", "zh": "我喜欢青苹果。" },
+    { "id": "s10", "en": "Dad drives a blue car.", "zh": "爸爸开一辆蓝色的小汽车。" },
+    { "id": "s11", "en": "We play in the park.", "zh": "我们在公园里玩。" },
+    { "id": "s12", "en": "The bird sings in the morning.", "zh": "小鸟在早晨歌唱。" }
+  ]
+}
