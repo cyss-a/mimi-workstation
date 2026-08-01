@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "user": {
+    "name": "mimi",
+    "createdAt": "2026-08-01"
+  },
+  "pinyin": {
+    "readGroups": [],
+    "lastDate": null
+  },
+  "sudoku": {
+    "completed": 0,
+    "bestSeconds": null,
+    "history": []
+  },
+  "focus": {
+    "bestSeconds": null,
+    "history": []
+  },
+  "raz": {
+    "ratings": {}
+  },
+  "ball": {
+    "goal": 100,
+    "total": 0,
+    "today": 0,
+    "todayDate": null,
+    "history": []
+  },
+  "vestibular": {
+    "byDate": {}
+  },
+  "science": {
+    "viewed": [],
+    "lastIndex": 0
+  },
+  "recite": {
+    "savedTexts": []
+  },
+  "checkin": {
+    "streak": 0,
+    "totalDays": 0,
+    "lastDate": null,
+    "history": []
+  },
+  "todo": {
+    "items": []
+  },
+  "reading": {
+    "logs": []
+  }
+}
