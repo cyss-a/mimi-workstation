@@ -38,7 +38,18 @@ const state = {
 
 async function loadAll() {
   state.seeds = await api.getSeedAll();
-  state.user = await api.getState();
+  try {
+    state.user = await api.getState();
+  } catch (e) {
+    if (String(e.message || e).includes('NO_GITHUB_TOKEN')) throw e; // 交给 main 走引导流程
+    // 其他错误（Token 无效 / 网络 / 限流 / 仓库无权限）：回退到本地默认数据，保证页面可用
+    console.warn('[loadAll] getState 失败，回退默认数据：', e);
+    try { state.user = await api.getDefaultState(); }
+    catch (e2) { console.error('[loadAll] 默认数据也加载失败：', e2); state.user = {}; }
+    updateCloudBadge();
+    toast('⚠️ 云端读取失败，已显示本地默认数据。请到设置检查 Token / 仓库权限。');
+    return;
+  }
   updateCloudBadge();
 }
 
@@ -60,6 +71,7 @@ function highlightNav(route) {
 async function render(route) {
   state.current = route;
   highlightNav(route);
+  if (!state.user) { renderOnboarding(); return; } // 数据安全网：绝不让空 user 进入模块渲染
   const view = document.getElementById('view');
   clear(view);
   view.appendChild(el('div', { class: 'placeholder' }, '加载中…'));
@@ -135,8 +147,18 @@ function setupSettings() {
     });
     close();
     toast('设置已保存，正在重新加载数据…');
-    try { await loadAll(); render(state.current); toast('已联网更新'); }
-    catch (e) { toast('加载失败：' + (e.message || e)); }
+    try {
+      await loadAll();
+      render(state.current);
+      toast('已联网更新');
+    } catch (e) {
+      if (String(e.message || e).includes('NO_GITHUB_TOKEN')) {
+        renderOnboarding();
+        return;
+      }
+      toast('加载失败：' + (e.message || e));
+      return; // 加载失败时不渲染，避免空数据崩溃
+    }
   });
 
   modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
