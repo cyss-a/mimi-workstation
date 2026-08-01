@@ -2,7 +2,10 @@
 import { el } from '../ui.js';
 
 export async function render({ state, refreshUser }) {
-  const u = state.user;
+  const u = state.user || {};
+  const pinyin = u.pinyin || {};
+  const checkin = u.checkin || {};
+  const ball = u.ball || {};
   const today = new Date().toISOString().slice(0, 10);
   const root = el('div');
 
@@ -13,17 +16,17 @@ export async function render({ state, refreshUser }) {
   ));
 
   // 今日概览
-  const pinyinDone = (u.pinyin.readGroups || []).length;
-  const pinyinTodayDone = u.pinyin.lastDate === today;
-  const checkinDone = u.checkin.lastDate === today;
+  const pinyinDone = (pinyin.readGroups || []).length;
+  const pinyinTodayDone = pinyin.lastDate === today;
+  const checkinDone = checkin.lastDate === today;
 
   root.appendChild(el('div', { class: 'card' },
     el('h3', {}, '📊 今日概览'),
     el('div', { class: 'grid-2' },
       statBlock('✅ 今日打卡', checkinDone ? '已完成' : '未打卡'),
       statBlock('拼 拼音卡', `${pinyinDone}/16${pinyinTodayDone ? '（今日）' : ''}`),
-      statBlock('🏀 拍球', `${u.ball.today || 0}/${u.ball.goal || 100}`),
-      statBlock('🔥 连续打卡', `${u.checkin.streak} 天`),
+      statBlock('🏀 拍球', `${ball.today || 0}/${ball.goal || 100}`),
+      statBlock('🔥 连续打卡', `${checkin.streak || 0} 天`),
     ),
   ));
 
@@ -44,10 +47,10 @@ export async function render({ state, refreshUser }) {
   root.appendChild(el('div', { class: 'card' },
     el('h3', {}, '☁️ 数据'),
     el('div', { class: 'muted' },
-      u.checkin.lastDate ? `上次打卡：${u.checkin.lastDate}（连续 ${u.checkin.streak} 天）` : '还没有打卡记录，今天来一次吧！'
+      checkin.lastDate ? `上次打卡：${checkin.lastDate}（连续 ${checkin.streak || 0} 天）` : '还没有打卡记录，今天来一次吧！'
     ),
     el('div', { class: 'row', style: { marginTop: '8px' } },
-      el('span', { class: 'tag green' }, `${u.checkin.totalDays} 次累计打卡`),
+      el('span', { class: 'tag green' }, `${(checkin.totalDays || 0)} 次累计打卡`),
     ),
   ));
 
