@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "title": "拼音训练纸",
+  "subtitle": "看图听音·拼读练习",
+  "totalGroups": 16,
+  "groups": [
+    { "id": "g01", "pinyin": "bā / bà", "tone": [1, 4], "chars": [{ "char": "八", "pinyin": "bā" }, { "char": "坝", "pinyin": "bà" }], "word": "八角坝" },
+    { "id": "g02", "pinyin": "hé / hé", "tone": [2, 2], "chars": [{ "char": "河", "pinyin": "hé" }, { "char": "荷", "pinyin": "hé" }], "word": "河马荷" },
+    { "id": "g03", "pinyin": "qī / qǐ", "tone": [1, 3], "chars": [{ "char": "七", "pinyin": "qī" }, { "char": "起", "pinyin": "qǐ" }], "word": "七彩起" },
+    { "id": "g04", "pinyin": "gé / gè", "tone": [2, 4], "chars": [{ "char": "格", "pinyin": "gé" }, { "char": "个", "pinyin": "gè" }], "word": "格子个" },
+    { "id": "g05", "pinyin": "pò / pǒ", "tone": [4, 3], "chars": [{ "char": "破", "pinyin": "pò" }, { "char": "颇", "pinyin": "pǒ" }], "word": "破洞颇" },
+    { "id": "g06", "pinyin": "xī / xǐ", "tone": [1, 3], "chars": [{ "char": "习", "pinyin": "xí" }, { "char": "洗", "pinyin": "xǐ" }], "word": "学习洗手" },
+    { "id": "g07", "pinyin": "tǎ / tà", "tone": [3, 4], "chars": [{ "char": "塔", "pinyin": "tǎ" }, { "char": "踏", "pinyin": "tà" }], "word": "宝塔踏青" },
+    { "id": "g08", "pinyin": "dá / dà", "tone": [2, 4], "chars": [{ "char": "答", "pinyin": "dá" }, { "char": "大", "pinyin": "dà" }], "word": "回答大人" },
+    { "id": "g09", "pinyin": "má / mā", "tone": [2, 1], "chars": [{ "char": "吗", "pinyin": "ma" }, { "char": "妈", "pinyin": "mā" }], "word": "好吗妈妈" },
+    { "id": "g10", "pinyin": "jī / jǐ", "tone": [1, 3], "chars": [{ "char": "几", "pinyin": "jǐ" }, { "char": "己", "pinyin": "jǐ" }], "word": "几个自己" },
+    { "id": "g11", "pinyin": "yī / yǐ", "tone": [1, 3], "chars": [{ "char": "一", "pinyin": "yī" }, { "char": "以", "pinyin": "yǐ" }], "word": "一只以后" },
+    { "id": "g12", "pinyin": "shū / shù", "tone": [1, 4], "chars": [{ "char": "书", "pinyin": "shū" }, { "char": "树", "pinyin": "shù" }], "word": "书本大树" },
+    { "id": "g13", "pinyin": "huā / huà", "tone": [1, 4], "chars": [{ "char": "花", "pinyin": "huā" }, { "char": "画", "pinyin": "huà" }], "word": "花朵画画" },
+    { "id": "g14", "pinyin": "duō / duó", "tone": [1, 2], "chars": [{ "char": "多", "pinyin": "duō" }, { "char": "夺", "pinyin": "duó" }], "word": "许多夺回" },
+    { "id": "g15", "pinyin": "lù / lǜ", "tone": [4, 4], "chars": [{ "char": "路", "pinyin": "lù" }, { "char": "绿", "pinyin": "lǜ" }], "word": "马路绿色" },
+    { "id": "g16", "pinyin": "xià / xiā", "tone": [4, 1], "chars": [{ "char": "下", "pinyin": "xià" }, { "char": "虾", "pinyin": "xiā" }], "word": "下来虾米" }
+  ]
+}
