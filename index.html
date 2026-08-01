@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#a78bfa" />
+  <title>mimi 的成长日志 · 幼小衔接学习工作台</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app" class="app">
+    <!-- 顶部条 -->
+    <header class="topbar">
+      <button id="sidebarToggle" class="icon-btn" aria-label="侧栏">≡</button>
+      <div class="topbar-title">
+        <span class="brand">mimi 的成长日志</span>
+        <span class="sub">幼小衔接学习工作台</span>
+      </div>
+      <button id="settingsBtn" class="icon-btn" aria-label="设置">⚙</button>
+    </header>
+
+    <!-- 主体：侧栏 + 内容 -->
+    <div class="main">
+      <nav id="sidebar" class="sidebar">
+        <ul class="nav-list">
+          <li data-route="dashboard"><span class="emoji">🏠</span><span>首页</span></li>
+          <li data-route="pinyin"><span class="emoji">拼</span><span>拼音训练纸</span></li>
+          <li data-route="sudoku"><span class="emoji">🧩</span><span>儿童数独</span></li>
+          <li data-route="focus"><span class="emoji">🎯</span><span>专注力训练</span></li>
+          <li data-route="raz"><span class="emoji">📖</span><span>RAZ 句子跟读</span></li>
+          <li data-route="ball"><span class="emoji">🏀</span><span>拍球训练</span></li>
+          <li data-route="vestibular"><span class="emoji">🤸</span><span>前庭组织运动</span></li>
+          <li data-route="science"><span class="emoji">🔬</span><span>科普专区</span></li>
+          <li data-route="recite"><span class="emoji">🎤</span><span>朗诵比赛</span></li>
+          <li data-route="checkin"><span class="emoji">✅</span><span>每日打卡</span></li>
+          <li data-route="todo"><span class="emoji">📝</span><span>待办清单</span></li>
+          <li data-route="reading"><span class="emoji">📚</span><span>亲子阅读</span></li>
+        </ul>
+        <div class="sidebar-foot">
+          <div class="cloud-state" id="cloudState">本地 · 未联网</div>
+        </div>
+      </nav>
+
+      <main id="view" class="view">
+        <div class="placeholder">加载中…</div>
+      </main>
+    </div>
+
+    <!-- 设置弹窗 -->
+    <div id="settingsModal" class="modal hidden">
+      <div class="modal-card">
+        <h3>⚙ 设置</h3>
+        <div class="settings-block">
+          <label>数据后端</label>
+          <div class="seg">
+            <button data-mode="local" class="active">本地 (后端服务)</button>
+            <button data-mode="github">GitHub 云端</button>
+          </div>
+          <p class="hint" id="modeHint">本地模式：所有数据存本机 JSON，不联网同步。</p>
+        </div>
+        <div id="githubCfg" class="settings-block hidden">
+          <label>GitHub Personal Access Token (需 <code>repo</code> 权限)</label>
+          <input id="ghToken" type="password" placeholder="ghp_xxx..." />
+          <label>Owner (用户名/组织)</label>
+          <input id="ghOwner" placeholder="例如 cyss-a" />
+          <label>Repo (数据仓库名)</label>
+          <input id="ghRepo" placeholder="例如 mimi-workstation-data" />
+          <label>Branch</label>
+          <input id="ghBranch" value="main" />
+          <label>State 文件路径</label>
+          <input id="ghPath" value="state.json" />
+          <p class="hint">首次部署请按 README 创建数据仓库并初始化 state.json。</p>
+        </div>
+        <div class="modal-actions">
+          <button id="settingsCancel" class="btn ghost">取消</button>
+          <button id="settingsSave" class="btn primary">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 通用 Toast -->
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
