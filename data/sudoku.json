@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "title": "儿童数独",
+  "subtitle": "4×4 入门 / 进阶",
+  "levels": [
+    { "id": "entry", "label": "4×4 入门", "size": 4, "givens": 8 },
+    { "id": "advanced", "label": "4×4 进阶", "size": 4, "givens": 6 }
+  ]
+}
