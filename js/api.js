@@ -6,13 +6,19 @@
 
 const CONFIG_KEY = 'mimi-workstation-config';
 
+// 部署到 GitHub Pages (github.io) 时默认走 GitHub 云端；本地开发默认走本地后端
+function defaultMode() {
+  try { return location.hostname.endsWith('github.io') ? 'github' : 'local'; }
+  catch { return 'local'; }
+}
+
 const DEFAULT_CONFIG = {
-  mode: 'local',           // 'local' | 'github'
+  mode: defaultMode(),     // 'local' | 'github'
   apiBase: '/api',         // 本地后端基址
   github: {
     token: '',
-    owner: '',
-    repo: '',
+    owner: 'cyss-a',
+    repo: 'mimi-workstation-data',
     branch: 'main',
     path: 'state.json',
   },
@@ -186,6 +192,7 @@ export async function getDefaultState() { return fetchSeed('default'); }
 
 export async function getState() {
   if (cfg.mode === 'github') {
+    if (!cfg.github.token) throw new Error('NO_GITHUB_TOKEN');
     const { content } = await ghGetFile();
     return content;
   }
