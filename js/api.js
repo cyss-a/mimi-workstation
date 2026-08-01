@@ -188,7 +188,7 @@ export function getCloudBadge() {
 
 export async function getSeed(module) { return fetchSeed(module); }
 export async function getSeedAll() { return fetchSeedAll(); }
-export async function getDefaultState() { return fetchSeed('default'); }
+export async function getDefaultState() { return fetchSeed('default-state'); }
 
 export async function getState() {
   if (cfg.mode === 'github') {
