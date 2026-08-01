@@ -33,7 +33,7 @@ export async function render({ state, refreshUser }) {
       el('div', { style: { fontWeight: 700, color: 'var(--accent)', marginBottom: '4px' } }, s.en),
       el('div', { class: 'muted', style: { marginBottom: '8px' } }, s.zh),
       el('div', { class: 'row wrap', style: { gap: '6px' } },
-        el('button', { class: 'btn primary small', on: { click: () => speak(s.en, { lang: 'en-US', rate: 0.7 }) } }, '🔊 发音'),
+        el('button', { class: 'btn primary small', on: { click: () => speak(s.en, { lang: 'en-US', rate: 0.9 }) } }, '🔊 发音'),
         el('button', { class: 'btn outline small', on: { click: () => speak(s.zh, { lang: 'zh-CN', rate: 0.85 }) } }, '🀄 中文'),
         ...grades.map(g => {
           const active = rated === g.id;
@@ -98,8 +98,8 @@ function speakAll(sentences) {
   if (!('speechSynthesis' in window)) return;
   const parts = [];
   for (const s of sentences) {
-    parts.push({ text: s.en, lang: 'en-US', rate: 0.8 });
-    parts.push({ text: s.zh, lang: 'zh-CN', rate: 0.9 });
+    parts.push({ text: s.en, lang: 'en-US', rate: 0.9 });
+    parts.push({ text: s.zh, lang: 'zh-CN', rate: 0.85 });
   }
   speakParagraph(parts, { pause: 300 });
   toast('开始连读…');

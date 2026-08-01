@@ -147,7 +147,7 @@ async function runQuiz(seed, u, state) {
         el('h3', {}, `请选出「${g.pinyin}」对应的字`),
         el('div', { class: 'row between' },
           el('span', { class: 'tag pink' }, g.word),
-          el('button', { class: 'btn ghost small', on: { click: () => speak(g.pinyin, { lang: 'zh-CN', rate: 0.7 }) } }, '🔊 再听一次'),
+          el('button', { class: 'btn ghost small', on: { click: () => pinyinSpeak(g) } }, '🔊 再听一次'),
         ),
       ),
       el('div', { class: 'card' }, grid),
