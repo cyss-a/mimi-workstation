@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "title": "RAZ 句子跟读",
   "level": "5a",
   "sentences": [
@@ -14,6 +14,24 @@
     { "id": "s09", "en": "I like green apples.", "zh": "我喜欢青苹果。" },
     { "id": "s10", "en": "Dad drives a blue car.", "zh": "爸爸开一辆蓝色的小汽车。" },
     { "id": "s11", "en": "We play in the park.", "zh": "我们在公园里玩。" },
-    { "id": "s12", "en": "The bird sings in the morning.", "zh": "小鸟在早晨歌唱。" }
+    { "id": "s12", "en": "The bird sings in the morning.", "zh": "小鸟在早晨歌唱。" },
+    { "id": "s13", "en": "The cat is on the chair.", "zh": "猫在椅子上。" },
+    { "id": "s14", "en": "I see a yellow duck.", "zh": "我看见一只黄鸭子。" },
+    { "id": "s15", "en": "The fish can swim.", "zh": "小鱼会游泳。" },
+    { "id": "s16", "en": "We read a book.", "zh": "我们读一本书。" },
+    { "id": "s17", "en": "He has a blue kite.", "zh": "他有一个蓝色的风筝。" },
+    { "id": "s18", "en": "The red flower is big.", "zh": "红色的花很大。" },
+    { "id": "s19", "en": "My sister is happy.", "zh": "我的妹妹很开心。" },
+    { "id": "s20", "en": "The ball is under the table.", "zh": "球在桌子下面。" },
+    { "id": "s21", "en": "I like to eat rice.", "zh": "我喜欢吃米饭。" },
+    { "id": "s22", "en": "The bird is in the tree.", "zh": "鸟在树上。" },
+    { "id": "s23", "en": "We go to school.", "zh": "我们去上学。" },
+    { "id": "s24", "en": "The cow says moo.", "zh": "奶牛哞哞叫。" },
+    { "id": "s25", "en": "I wash my hands.", "zh": "我洗手。" },
+    { "id": "s26", "en": "The sun is in the sky.", "zh": "太阳在天上。" },
+    { "id": "s27", "en": "A little boy runs.", "zh": "一个小男孩在跑。" },
+    { "id": "s28", "en": "The apple is red.", "zh": "苹果是红色的。" },
+    { "id": "s29", "en": "My friend is kind.", "zh": "我的朋友很友好。" },
+    { "id": "s30", "en": "The door is open.", "zh": "门开着。" }
   ]
 }

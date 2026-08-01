@@ -1,4 +1,4 @@
-// modules/sudoku.js — 4x4 数独
+// modules/sudoku.js — 4x4 / 8x8 数独
 import { el, toast, formatDate } from '../ui.js';
 import { patchState } from '../api.js';
 
@@ -13,31 +13,36 @@ export async function render({ state, refreshUser }) {
   ));
 
   let level = seed.levels[0];
-  let puzzle = null;       // {solution, givens: [[n|null]*4], current: [[n|null]*4]}
+  let puzzle = null;
   let startTime = 0;
-  let selected = null;     // [r, c]
+  let selected = null;
   let finished = false;
 
+  // 拉丁方（4x4 / 8x8）
+  function latinSquare(n) {
+    const base = Array.from({ length: n }, (_, r) => Array.from({ length: n }, (_, c) => (r + c) % n + 1));
+    // 洗牌一下行与列，避免每次都相同
+    const shuffle = (arr) => { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+    shuffle(base); // 行洗后仍是拉丁方
+    return base;
+  }
+
   function generatePuzzle(lvl) {
-    // 生成一个合法 4x4 数独（Latin square 变体），挖洞得到题目
-    const sol = latinSquare4();
-    // 随机挖洞，保留 lvl.givens 个格子
+    const n = lvl.size;
+    const sol = latinSquare(n);
     const positions = [];
-    for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) positions.push([r, c]);
-    positions.sort(() => Math.random() - 0.5);
-    const holes = 16 - lvl.givens;
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) positions.push([r, c]);
+    for (let i = positions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [positions[i], positions[j]] = [positions[j], positions[i]];
+    }
+    const holes = n * n - lvl.givens;
     const cur = sol.map(row => [...row]);
     for (let i = 0; i < holes; i++) {
       const [r, c] = positions[i];
       cur[r][c] = null;
     }
-    return { solution: sol, givens: cur, current: cur.map(r => [...r]) };
-  }
-
-  function latinSquare4() {
-    // 一个 4x4 的拉丁方（满足每行/每列 1-4 各一次，对角线分块也满足）
-    const base = [[1, 2, 3, 4], [3, 4, 1, 2], [2, 1, 4, 3], [4, 3, 2, 1]];
-    return base;
+    return { solution: sol, givens: cur.map(r => [...r]), current: cur.map(r => [...r]) };
   }
 
   function startNew() {
@@ -49,28 +54,34 @@ export async function render({ state, refreshUser }) {
   }
 
   function check() {
-    let ok = true;
-    for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
-      if (puzzle.current[r][c] !== puzzle.solution[r][c]) { ok = false; break; }
+    const n = level.size;
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+      if (puzzle.current[r][c] !== puzzle.solution[r][c]) return false;
     }
-    return ok;
+    return true;
   }
 
   function isComplete() {
-    for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) if (puzzle.current[r][c] == null) return false;
+    const n = level.size;
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (puzzle.current[r][c] == null) return false;
     return true;
   }
 
   const gridCard = el('div', { class: 'card' });
-  const grid = el('div', { class: 'sudoku-grid' });
+  const grid = el('div', { class: 'sudoku-grid', style: { gridTemplateColumns: `repeat(${level.size}, 1fr)` } });
   const keypadCard = el('div', { class: 'card' });
-  const keypad = el('div', { class: 'sudoku-keypad' });
-  const status = el('div', { class: 'muted', style: { marginBottom: '8px' } });
+  const keypad = el('div', { class: 'sudoku-keypad', style: { gridTemplateColumns: `repeat(${level.size + 1}, 1fr)` } });
+  const status = el('div', { class: 'muted', style: { marginBottom: '6px', fontSize: '12px' } });
 
   function draw() {
     clear(grid); clear(keypad);
     if (!puzzle) return;
-    for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+    const n = level.size;
+    grid.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+    keypad.style.gridTemplateColumns = `repeat(${n + 1}, 1fr)`;
+    grid.dataset.size = n;
+    keypad.dataset.size = n;
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
       const v = puzzle.current[r][c];
       const isGiven = puzzle.givens[r][c] != null;
       const isSel = selected && selected[0] === r && selected[1] === c;
@@ -83,11 +94,11 @@ export async function render({ state, refreshUser }) {
       grid.appendChild(cell);
     }
     if (selected && !puzzle.givens[selected[0]][selected[1]]) {
-      for (let n = 1; n <= 4; n++) {
-        const k = el('div', { class: 'sudoku-key' }, String(n));
+      for (let n2 = 1; n2 <= n; n2++) {
+        const k = el('div', { class: 'sudoku-key' }, String(n2));
         k.addEventListener('click', () => {
           const [r, c] = selected;
-          puzzle.current[r][c] = n;
+          puzzle.current[r][c] = n2;
           if (isComplete()) {
             if (check()) {
               finished = true;
@@ -105,13 +116,13 @@ export async function render({ state, refreshUser }) {
       clr.addEventListener('click', () => { puzzle.current[selected[0]][selected[1]] = null; draw(); });
       keypad.appendChild(clr);
     }
-    status.textContent = finished ? '🎉 已完成！再来一局？' : `选择空格，再点数字键填入（${level.label}）`;
+    status.textContent = finished ? '🎉 已完成！再来一局？' : `选空格 → 点数字键（${level.label}）`;
   }
 
   root.appendChild(gridCard);
   gridCard.appendChild(el('div', { class: 'row between' },
     el('div', {}, el('h3', {}, '📐 数独格'), status),
-    el('button', { class: 'btn outline small', on: { click: startNew } }, '🔄 重新开始'),
+    el('button', { class: 'btn outline small', on: { click: startNew } }, '🔄 重来'),
   ));
   gridCard.appendChild(grid);
 

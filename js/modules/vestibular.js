@@ -11,6 +11,7 @@ export async function render({ state, refreshUser }) {
   if (!u.vestibular.byDate[today]) u.vestibular.byDate[today] = [];
   const todayDone = new Set(u.vestibular.byDate[today]);
 
+  let timerId = null;
   const root = el('div');
 
   root.appendChild(el('div', { class: 'card' },
@@ -63,15 +64,47 @@ export async function render({ state, refreshUser }) {
   }
 
   function startTimer(item) {
-    let sec = parseInt(item.duration) * 60 || 60;
-    toast(`⏱ ${item.name} ${sec} 秒开始`);
-    const id = setInterval(() => {
-      sec--;
-      if (sec <= 0) {
-        clearInterval(id);
+    const total = (parseInt(item.duration) * 60) || 60;
+    let remaining = total;
+    if (timerId) clearInterval(timerId);
+
+    // 计时遮罩
+    const numNode = el('div', { class: 'num' }, String(remaining));
+    const ring = el('div', { class: 'timer-ring' }, numNode, el('div', { class: 'lab' }, item.name));
+    const overlay = el('div', { class: 'timer-overlay' },
+      el('div', { class: 'timer-name' }, '⏱ 前庭训练计时'),
+      ring,
+      el('button', { class: 'timer-cancel', on: { click: () => stopTimer() } }, '✕ 取消'),
+    );
+    document.body.appendChild(overlay);
+    paintRing();
+
+    function paintRing() {
+      const pct = ((total - remaining) / total) * 100;
+      ring.style.background = `conic-gradient(var(--m-pink) ${pct}%, rgba(255,255,255,0.5) 0%)`;
+      numNode.textContent = remaining;
+    }
+    function stopTimer() {
+      clearInterval(timerId);
+      timerId = null;
+      overlay.remove();
+      toast('已停止计时');
+    }
+
+    timerId = setInterval(() => {
+      // 离开页（被其它模块替换）则自动停止，避免后台空转
+      if (!root.isConnected) { stopTimer(); return; }
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(timerId);
+        timerId = null;
+        overlay.remove();
         toast(`🎉 ${item.name} 完成！`);
         if (!todayDone.has(item.id)) toggle(item.id);
+        return;
       }
+      numNode.textContent = remaining;
+      paintRing();
     }, 1000);
   }
 

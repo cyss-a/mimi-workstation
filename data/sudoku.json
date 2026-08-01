@@ -1,9 +1,11 @@
 {
-  "version": 1,
+  "version": 2,
   "title": "儿童数独",
-  "subtitle": "4×4 入门 / 进阶",
+  "subtitle": "4×4 / 8×8 入门 / 进阶",
   "levels": [
-    { "id": "entry", "label": "4×4 入门", "size": 4, "givens": 8 },
-    { "id": "advanced", "label": "4×4 进阶", "size": 4, "givens": 6 }
+    { "id": "4e", "label": "4×4 入门", "size": 4, "givens": 8 },
+    { "id": "4a", "label": "4×4 进阶", "size": 4, "givens": 6 },
+    { "id": "8e", "label": "8×8 入门", "size": 8, "givens": 40 },
+    { "id": "8a", "label": "8×8 进阶", "size": 8, "givens": 30 }
   ]
 }

@@ -37,7 +37,7 @@ export async function render({ state, refreshUser }) {
     listCard.appendChild(el('div', { class: 'empty' }, '还没有保存的文本～'));
   }
   (u.recite.savedTexts || []).forEach(item => {
-    listCard.appendChild(el('div', { style: { background: '#f8fafc', padding: '10px', borderRadius: '10px', marginBottom: '8px' } },
+    listCard.appendChild(el('div', { class: 'maco-pink', style: { padding: '10px', borderRadius: '12px', marginBottom: '8px' } },
       el('div', { class: 'row between' },
         el('div', {},
           el('div', { style: { fontWeight: 700 } }, item.title || '（无标题）'),
@@ -52,13 +52,17 @@ export async function render({ state, refreshUser }) {
   root.appendChild(listCard);
 
   // 示例
+  const macoClasses = ['maco-pink', 'maco-mint', 'maco-lav', 'maco-peach', 'maco-sky', 'maco-lemon'];
   root.appendChild(el('div', { class: 'card' },
     el('h3', {}, '📖 经典示例'),
     el('div', { class: 'grid-auto' },
-      ...seed.examples.map(ex =>
-        el('button', { class: 'btn outline', style: { padding: '10px', textAlign: 'left' }, on: { click: () => { titleInput.value = ex.title; textArea.value = ex.text; } } },
-          el('div', { style: { fontWeight: 700 } }, ex.title),
-          el('div', { class: 'muted', style: { fontSize: '11px' } }, ex.text.slice(0, 24) + '…'),
+      ...seed.examples.map((ex, i) =>
+        el('button', {
+          class: `example-card ${macoClasses[i % macoClasses.length]}`,
+          on: { click: () => { titleInput.value = ex.title; textArea.value = ex.text; toast('已填入：' + ex.title); } },
+        },
+          el('div', { class: 'ex-title' }, ex.title),
+          el('div', { class: 'ex-text' }, ex.text),
         ),
       ),
     ),

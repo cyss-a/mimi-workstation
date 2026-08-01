@@ -37,17 +37,70 @@ export function formatDate(iso) {
 }
 
 // TTS：浏览器 Web Speech API
-export function speak(text, { lang = 'zh-CN', rate = 0.9 } = {}) {
+let _voice = null;
+function pickBestVoice() {
+  if (_voice) return _voice;
+  if (!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) return null;
+  // 优先找中文女声（macOS iOS / Chrome / Windows 都有差异，按名称匹配）
+  const prefs = [
+    /Tingting/i,           // macOS 中文普通话女声
+    /Sin-?ji/i,            // macOS 粤语女声
+    /Mei-?Jia/i,           // macOS 台湾女声
+    /Microsoft\s*Xiaoxiao/i, // Win 中文女声
+    /Microsoft\s*Yaoyao/i,   // Win 中文女声
+    /Female.*zh/i,
+    /.*zh-?CN.*Female.*/i,
+    /.*zh-?CN.*/i,
+    /.*zh.*/i,
+  ];
+  for (const p of prefs) {
+    const v = voices.find(v => p.test(v.name) || p.test(v.lang));
+    if (v) { _voice = v; return v; }
+  }
+  _voice = voices[0] || null;
+  return _voice;
+}
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => { _voice = null; pickBestVoice(); };
+  setTimeout(pickBestVoice, 0);
+}
+
+export function speak(text, { lang = 'zh-CN', rate = 0.85, pitch = 1.05 } = {}) {
   if (!('speechSynthesis' in window)) { toast('当前浏览器不支持语音播报'); return; }
-  window.speechSynthesis.cancel();
+  try { window.speechSynthesis.cancel(); } catch {}
   const u = new SpeechSynthesisUtterance(text);
   u.lang = lang;
   u.rate = rate;
+  u.pitch = pitch;
+  const v = pickBestVoice();
+  if (v) u.voice = v;
   window.speechSynthesis.speak(u);
 }
 
 export function stopSpeak() {
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+}
+
+// 把多段文本串成一句更连贯的语音
+export function speakParagraph(parts, { lang = 'zh-CN', rate = 0.85, pitch = 1.05, pause = 250 } = {}) {
+  if (!('speechSynthesis' in window)) { toast('当前浏览器不支持语音播报'); return; }
+  try { window.speechSynthesis.cancel(); } catch {}
+  const v = pickBestVoice();
+  let i = 0;
+  const next = () => {
+    if (i >= parts.length) return;
+    const p = parts[i++];
+    const u = new SpeechSynthesisUtterance(p.text);
+    u.lang = p.lang || lang;
+    u.rate = p.rate || rate;
+    u.pitch = p.pitch || pitch;
+    if (v) u.voice = v;
+    u.onend = () => setTimeout(next, pause);
+    window.speechSynthesis.speak(u);
+  };
+  next();
 }
 
 // 拼音/音节字母读法（用 chars 数组拼一个友好朗读串）

@@ -2,6 +2,9 @@
 import * as api from './api.js';
 import { getCloudBadge, getMode } from './api.js';
 import { el, clear, toast } from './ui.js';
+import { dateLabel } from './lunar.js';
+import { mountSidebarAnimals } from './animals.js';
+import { helpBubble } from './help.js';
 import * as Dashboard from './modules/dashboard.js';
 import * as Pinyin from './modules/pinyin.js';
 import * as Sudoku from './modules/sudoku.js';
@@ -41,8 +44,7 @@ async function loadAll() {
   try {
     state.user = await api.getState();
   } catch (e) {
-    if (String(e.message || e).includes('NO_GITHUB_TOKEN')) throw e; // 交给 main 走引导流程
-    // 其他错误（Token 无效 / 网络 / 限流 / 仓库无权限）：回退到本地默认数据，保证页面可用
+    // 云端读取失败：回退到本地默认数据，保证页面可用
     console.warn('[loadAll] getState 失败，回退默认数据：', e);
     try { state.user = await api.getDefaultState(); }
     catch (e2) { console.error('[loadAll] 默认数据也加载失败：', e2); state.user = {}; }
@@ -80,6 +82,11 @@ async function render(route) {
     const content = await mod.render({ state, refreshUser });
     clear(view);
     if (content) view.appendChild(content);
+    // 功能说明小问号圈（首页除外）：挂在模块首个标题旁
+    if (route !== 'dashboard') {
+      const h = view.querySelector('h3');
+      if (h) h.appendChild(helpBubble(route));
+    }
   } catch (e) {
     clear(view);
     view.appendChild(el('div', { class: 'card' },
@@ -104,22 +111,15 @@ function setupSettings() {
   const btn = document.getElementById('settingsBtn');
   const cancel = document.getElementById('settingsCancel');
   const save = document.getElementById('settingsSave');
-  const ghCfg = document.getElementById('githubCfg');
   const hint = document.getElementById('modeHint');
   const segBtns = modal.querySelectorAll('.seg button');
 
   function open() {
     const cfg = api.getConfig();
-    document.getElementById('ghToken').value = cfg.github.token || '';
-    document.getElementById('ghOwner').value = cfg.github.owner || '';
-    document.getElementById('ghRepo').value = cfg.github.repo || '';
-    document.getElementById('ghBranch').value = cfg.github.branch || 'main';
-    document.getElementById('ghPath').value = cfg.github.path || 'state.json';
     segBtns.forEach(b => b.classList.toggle('active', b.dataset.mode === cfg.mode));
-    ghCfg.classList.toggle('hidden', cfg.mode !== 'github');
-    hint.textContent = cfg.mode === 'github'
-      ? 'GitHub 模式：所有数据存到你的 GitHub 仓库，跨设备即时同步。'
-      : '本地模式：所有数据存本机后端服务（dev），切换到 GitHub 可实现联网同步。';
+    hint.textContent = cfg.mode === 'supabase'
+      ? 'Supabase 模式：开箱即用、无需任何账号配置，数据自动同步到云端，手机/电脑随时续上。'
+      : '本地模式：数据存在本机浏览器（localStorage），开箱即用、无需任何配置，刷新不丢。';
     modal.classList.remove('hidden');
   }
   function close() { modal.classList.add('hidden'); }
@@ -128,38 +128,64 @@ function setupSettings() {
   cancel.addEventListener('click', close);
   segBtns.forEach(b => b.addEventListener('click', () => {
     segBtns.forEach(x => x.classList.toggle('active', x === b));
-    ghCfg.classList.toggle('hidden', b.dataset.mode !== 'github');
-    hint.textContent = b.dataset.mode === 'github'
-      ? 'GitHub 模式：所有数据存到你的 GitHub 仓库，跨设备即时同步。'
-      : '本地模式：所有数据存本机后端服务（dev）。';
+    hint.textContent = b.dataset.mode === 'supabase'
+      ? 'Supabase 模式：开箱即用、无需任何账号配置，数据自动同步到云端，手机/电脑随时续上。'
+      : '本地模式：数据存在本机浏览器（localStorage），开箱即用、无需任何配置，刷新不丢。';
   }));
   save.addEventListener('click', async () => {
     const mode = [...segBtns].find(b => b.classList.contains('active')).dataset.mode;
-    api.updateConfig({
-      mode,
-      github: {
-        token: document.getElementById('ghToken').value.trim(),
-        owner: document.getElementById('ghOwner').value.trim(),
-        repo: document.getElementById('ghRepo').value.trim(),
-        branch: document.getElementById('ghBranch').value.trim() || 'main',
-        path: document.getElementById('ghPath').value.trim() || 'state.json',
-      },
-    });
+    api.updateConfig({ mode });
     close();
     toast('设置已保存，正在重新加载数据…');
     try {
       await loadAll();
       render(state.current);
-      toast('已联网更新');
+      toast('已更新');
     } catch (e) {
-      if (String(e.message || e).includes('NO_GITHUB_TOKEN')) {
-        renderOnboarding();
-        return;
-      }
       toast('加载失败：' + (e.message || e));
       return; // 加载失败时不渲染，避免空数据崩溃
     }
   });
+
+  // 数据备份（无需账号）：导出 / 导入 文件
+  const modalCard = modal.querySelector('.modal-card');
+  const fileInput = el('input', { type: 'file', accept: 'application/json', style: { display: 'none' }, on: { change: importData } });
+  const backupBlock = el('div', { class: 'settings-block' },
+    el('label', {}, '📦 数据备份（无需账号）'),
+    el('div', { class: 'row' },
+      el('button', { class: 'btn outline small', on: { click: exportData } }, '📤 导出文件'),
+      el('button', { class: 'btn outline small', on: { click: () => fileInput.click() } }, '📥 导入恢复'),
+    ),
+    el('p', { class: 'hint' }, '数据默认存在本机浏览器。点「导出」下载备份；换设备或清缓存后点「导入」选回文件即可恢复，全程不用注册任何账号。'),
+  );
+  modalCard.insertBefore(backupBlock, modalCard.querySelector('.modal-actions'));
+  modalCard.appendChild(fileInput);
+
+  async function exportData() {
+    try {
+      const s = await api.getFullState();
+      const blob = new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'mimi-workstation-backup.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+      toast('已导出备份文件 ✅');
+    } catch (e) { toast('导出失败：' + (e.message || e)); }
+  }
+  async function importData(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const obj = JSON.parse(text);
+      await api.setFullState(obj);
+      toast('导入成功，正在刷新…');
+      await loadAll();
+      render(state.current);
+    } catch (err) { toast('导入失败：' + (err.message || err)); }
+    e.target.value = '';
+  }
 
   modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
 }
@@ -174,16 +200,15 @@ function setupSidebar() {
   setupNav();
   setupSettings();
   setupSidebar();
+  mountSidebarAnimals();
   try { await loadAll(); }
   catch (e) {
-    if (String(e.message || e).includes('NO_GITHUB_TOKEN')) {
-      renderOnboarding();
-      return;
-    }
     toast('初始化失败：' + (e.message || e));
     console.error(e);
     return;
   }
+  const topDate = document.getElementById('topDate');
+  if (topDate) topDate.textContent = dateLabel();
   render('dashboard');
 })();
 
@@ -191,14 +216,8 @@ function renderOnboarding() {
   const view = document.getElementById('view');
   clear(view);
   view.appendChild(el('div', { class: 'card' },
-    el('h3', {}, '👋 欢迎使用 mimi 的成长日志'),
-    el('div', { class: 'muted' }, '数据将保存在你自己的 GitHub 私有仓库，跨设备实时同步。'),
-    el('div', { style: { margin: '12px 0', lineHeight: '1.7' } },
-      el('div', {}, '① 打开右上角 ⚙ 设置'),
-      el('div', {}, '② 数据后端选「GitHub 云端」'),
-      el('div', {}, '③ 粘贴一个仅限 mimi-workstation-data 仓库的 Token'),
-      el('div', {}, '④ 点保存，即可开始使用'),
-    ),
-    el('button', { class: 'btn primary', on: { click: () => document.getElementById('settingsBtn').click() } }, '⚙ 去设置'),
+    el('h3', {}, '👋 欢迎使用 小朋友 的成长日志'),
+    el('div', { class: 'muted' }, '数据已默认自动保存到云端（Supabase），开箱即用、无需任何配置。也可以到设置里切换为「本地」模式。'),
+    el('button', { class: 'btn primary', on: { click: () => document.getElementById('settingsBtn').click() } }, '⚙ 查看设置'),
   ));
 }

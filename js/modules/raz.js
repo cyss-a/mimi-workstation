@@ -1,11 +1,13 @@
 // modules/raz.js — RAZ 句子跟读
-import { el, speak, toast } from '../ui.js';
+import { el, speak, speakParagraph, toast } from '../ui.js';
 import { patchState } from '../api.js';
+import { pickDaily } from '../daily.js';
 
 export async function render({ state, refreshUser }) {
   const seed = state.seeds.raz;
   const u = state.user;
   const root = el('div');
+  let mode = 'today'; // 'today' | 'all'
 
   root.appendChild(el('div', { class: 'card' },
     el('h3', {}, seed.title),
@@ -23,8 +25,9 @@ export async function render({ state, refreshUser }) {
   ];
 
   const list = el('div', { class: 'card' });
-  list.appendChild(el('h3', {}, '🗣 跟读句子'));
-  seed.sentences.forEach(s => {
+  const statsLine = el('div', { class: 'muted', style: { marginBottom: '8px' } });
+
+  function makeCard(s) {
     const rated = u.raz.ratings?.[s.id];
     const card = el('div', { style: { background: '#f8fafc', padding: '12px', borderRadius: '12px', marginBottom: '8px' } },
       el('div', { style: { fontWeight: 700, color: 'var(--accent)', marginBottom: '4px' } }, s.en),
@@ -47,43 +50,58 @@ export async function render({ state, refreshUser }) {
         }),
       ),
     );
-    list.appendChild(card);
+    return card;
+  }
+
+  function rebuild() {
+    list.innerHTML = '';
+    list.appendChild(el('h3', {}, '🗣 跟读句子'));
+    list.appendChild(statsLine);
+    const sentences = mode === 'today' ? pickDaily(seed.sentences, 8) : seed.sentences;
+    sentences.forEach(s => list.appendChild(makeCard(s)));
+    statsLine.textContent = mode === 'today'
+      ? `今日 8 句（每天不同）· 共 ${seed.sentences.length} 句`
+      : `全部 ${seed.sentences.length} 句`;
+    modeBtn.textContent = mode === 'today' ? '📋 浏览全部' : '📅 每日跟读';
+  }
+
+  const modeBtn = el('button', { class: 'btn outline small' }, '📋 浏览全部');
+  modeBtn.addEventListener('click', () => {
+    mode = mode === 'today' ? 'all' : 'today';
+    rebuild();
   });
 
+  root.appendChild(el('div', { class: 'card' },
+    el('div', { class: 'row between' },
+      el('div', {}, el('h3', {}, '🗣 跟读句子')),
+      modeBtn,
+    ),
+  ));
   root.appendChild(list);
 
-  // 全自动朗读：连读所有未评或低分的句子
+  // 全自动朗读：连读当前列表的句子
   root.appendChild(el('div', { class: 'card' },
     el('div', { class: 'row between' },
       el('h3', {}, '🎙 整组跟读'),
-      el('button', { class: 'btn primary small', on: { click: () => speakAll(seed) } }, '▶ 连读全部'),
+      el('button', { class: 'btn primary small', on: { click: () => speakAll(mode === 'today' ? pickDaily(seed.sentences, 8) : seed.sentences) } }, '▶ 连读全部'),
     ),
     el('div', { class: 'muted' }, '点击后依次朗读英文→中文，方便跟读训练。'),
   ));
 
   root.appendChild(checkinBar(u, state));
 
+  rebuild();
   return root;
 }
 
-function speakAll(seed) {
+function speakAll(sentences) {
   if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  let i = 0;
-  const next = () => {
-    if (i >= seed.sentences.length) return;
-    const s = seed.sentences[i++];
-    const u = new SpeechSynthesisUtterance(s.en);
-    u.lang = 'en-US'; u.rate = 0.7;
-    u.onend = () => {
-      const u2 = new SpeechSynthesisUtterance(s.zh);
-      u2.lang = 'zh-CN'; u2.rate = 0.9;
-      u2.onend = () => setTimeout(next, 400);
-      window.speechSynthesis.speak(u2);
-    };
-    window.speechSynthesis.speak(u);
-  };
-  next();
+  const parts = [];
+  for (const s of sentences) {
+    parts.push({ text: s.en, lang: 'en-US', rate: 0.8 });
+    parts.push({ text: s.zh, lang: 'zh-CN', rate: 0.9 });
+  }
+  speakParagraph(parts, { pause: 300 });
   toast('开始连读…');
 }
 

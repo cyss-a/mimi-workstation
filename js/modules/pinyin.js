@@ -1,6 +1,7 @@
 // modules/pinyin.js — 拼音训练纸
 import { el, speak, pinyinSpeak, toast } from '../ui.js';
 import { patchState } from '../api.js';
+import { pickDaily } from '../daily.js';
 
 export async function render({ state, refreshUser }) {
   const seed = state.seeds.pinyin;
@@ -21,15 +22,16 @@ export async function render({ state, refreshUser }) {
   const grid = el('div', { class: 'pinyin-grid' });
   function rebuild() {
     clear(grid);
-    const list = mode === 'today' ? seed.groups.slice(0, 9) : seed.groups;
+    const list = mode === 'today' ? pickDaily(seed.groups, 9) : seed.groups;
     list.forEach(g => {
       const card = el('div', { class: 'pinyin-card' + (readSet.has(g.id) ? ' read' : '') },
+        el('div', { class: 'icon' }, g.icon || '📘'),
         el('div', { class: 'tone' }, g.pinyin),
         el('div', { class: 'row', style: { justifyContent: 'center', gap: '6px', marginTop: '2px' } },
           ...g.chars.map(c => el('span', { class: 'ch' }, c.char)),
         ),
         el('div', { class: 'py' }, g.word),
-        el('div', { class: 'muted', style: { fontSize: '10px', marginTop: '2px' } }, '🔊 点击发音'),
+        el('div', { class: 'muted', style: { fontSize: '10px', marginTop: '4px' } }, '🔊 点击发音'),
       );
       card.addEventListener('click', async () => {
         try {
@@ -49,24 +51,21 @@ export async function render({ state, refreshUser }) {
   const statsLine = el('div', { class: 'muted', style: { marginBottom: '8px' } });
   function updateStats() {
     statsLine.textContent = `已拼读 ${readSet.size}/${seed.totalGroups}${todayMark ? ' · 今日已练习' : ''}`;
-    modeBtn.dataset.tip = mode === 'today' ? '今日 9 张 · 点击切换浏览全部' : '全部 16 张 · 点击切换今日';
   }
 
-  const modeBtn = el('button', { class: 'btn outline small' }, mode === 'today' ? '📅 每日练习' : '📋 浏览全部');
+  const modeBtn = el('button', { class: 'btn outline small' }, mode === 'today' ? '📅 每日' : '📋 全部');
   modeBtn.addEventListener('click', () => {
     mode = mode === 'today' ? 'all' : 'today';
-    modeBtn.textContent = mode === 'today' ? '📅 每日练习' : '📋 浏览全部';
+    modeBtn.textContent = mode === 'today' ? '📅 每日' : '📋 全部';
     rebuild();
   });
 
-  const allBtn = el('button', { class: 'btn outline small' }, '🎯 测拼音题');
+  const allBtn = el('button', { class: 'btn outline small' }, '🎯 测一测');
   allBtn.addEventListener('click', () => runQuiz(seed, u, state));
 
   root.appendChild(el('div', { class: 'card' },
-    el('div', { class: 'row between' },
-      statsLine,
-      el('div', { class: 'row' }, modeBtn, allBtn),
-    ),
+    statsLine,
+    el('div', { class: 'row', style: { gap: '6px', marginBottom: '10px' } }, modeBtn, allBtn),
     grid,
   ));
 

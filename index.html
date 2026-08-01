@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#a78bfa" />
-  <title>mimi 的成长日志 · 幼小衔接学习工作台</title>
+  <title>小朋友的成长日志 · 幼小衔接学习工作台</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -13,8 +13,9 @@
     <header class="topbar">
       <button id="sidebarToggle" class="icon-btn" aria-label="侧栏">≡</button>
       <div class="topbar-title">
-        <span class="brand">mimi 的成长日志</span>
+        <span class="brand">小朋友的成长日志</span>
         <span class="sub">幼小衔接学习工作台</span>
+        <span class="topdate" id="topDate"></span>
       </div>
       <button id="settingsBtn" class="icon-btn" aria-label="设置">⚙</button>
     </header>
@@ -23,18 +24,18 @@
     <div class="main">
       <nav id="sidebar" class="sidebar">
         <ul class="nav-list">
-          <li data-route="dashboard"><span class="emoji">🏠</span><span>首页</span></li>
-          <li data-route="pinyin"><span class="emoji">拼</span><span>拼音训练纸</span></li>
-          <li data-route="sudoku"><span class="emoji">🧩</span><span>儿童数独</span></li>
-          <li data-route="focus"><span class="emoji">🎯</span><span>专注力训练</span></li>
-          <li data-route="raz"><span class="emoji">📖</span><span>RAZ 句子跟读</span></li>
-          <li data-route="ball"><span class="emoji">🏀</span><span>拍球训练</span></li>
-          <li data-route="vestibular"><span class="emoji">🤸</span><span>前庭组织运动</span></li>
-          <li data-route="science"><span class="emoji">🔬</span><span>科普专区</span></li>
-          <li data-route="recite"><span class="emoji">🎤</span><span>朗诵比赛</span></li>
-          <li data-route="checkin"><span class="emoji">✅</span><span>每日打卡</span></li>
-          <li data-route="todo"><span class="emoji">📝</span><span>待办清单</span></li>
-          <li data-route="reading"><span class="emoji">📚</span><span>亲子阅读</span></li>
+          <li data-route="dashboard"><span class="emoji" data-animal="home"></span><span>首页</span></li>
+          <li data-route="pinyin"><span class="emoji" data-animal="panda"></span><span>拼音</span></li>
+          <li data-route="sudoku"><span class="emoji" data-animal="fox"></span><span>数独</span></li>
+          <li data-route="focus"><span class="emoji" data-animal="owl"></span><span>专注</span></li>
+          <li data-route="raz"><span class="emoji" data-animal="rabbit"></span><span>句子跟读</span></li>
+          <li data-route="ball"><span class="emoji" data-animal="monkey"></span><span>拍球</span></li>
+          <li data-route="vestibular"><span class="emoji" data-animal="frog"></span><span>前庭运动</span></li>
+          <li data-route="science"><span class="emoji" data-animal="bear"></span><span>科普</span></li>
+          <li data-route="recite"><span class="emoji" data-animal="chick"></span><span>朗诵</span></li>
+          <li data-route="checkin"><span class="emoji" data-animal="dog"></span><span>打卡</span></li>
+          <li data-route="todo"><span class="emoji" data-animal="mouse"></span><span>待办</span></li>
+          <li data-route="reading"><span class="emoji" data-animal="elephant"></span><span>阅读</span></li>
         </ul>
         <div class="sidebar-foot">
           <div class="cloud-state" id="cloudState">本地 · 未联网</div>
@@ -53,23 +54,10 @@
         <div class="settings-block">
           <label>数据后端</label>
           <div class="seg">
-            <button data-mode="local" class="active">本地 (后端服务)</button>
-            <button data-mode="github">GitHub 云端</button>
+            <button data-mode="supabase" class="active">☁️ Supabase（推荐·零配置）</button>
+            <button data-mode="local">本地</button>
           </div>
-          <p class="hint" id="modeHint">本地模式：所有数据存本机 JSON，不联网同步。</p>
-        </div>
-        <div id="githubCfg" class="settings-block hidden">
-          <label>GitHub Personal Access Token (需 <code>repo</code> 权限)</label>
-          <input id="ghToken" type="password" placeholder="ghp_xxx..." />
-          <label>Owner (用户名/组织)</label>
-          <input id="ghOwner" placeholder="例如 cyss-a" />
-          <label>Repo (数据仓库名)</label>
-          <input id="ghRepo" placeholder="例如 mimi-workstation-data" />
-          <label>Branch</label>
-          <input id="ghBranch" value="main" />
-          <label>State 文件路径</label>
-          <input id="ghPath" value="state.json" />
-          <p class="hint">首次部署请按 README 创建数据仓库并初始化 state.json。</p>
+          <p class="hint" id="modeHint">Supabase 模式：开箱即用、无需任何账号配置，数据自动同步到云端，手机/电脑随时续上。</p>
         </div>
         <div class="modal-actions">
           <button id="settingsCancel" class="btn ghost">取消</button>
